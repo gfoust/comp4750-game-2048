@@ -2,7 +2,9 @@
 class_name Tile
 extends Node2D
 
-const colors := [
+const SIZE = 120
+
+const COLORS := [
 	Color.BLACK,
 	Color.DARK_BLUE,
 	Color.DARK_CYAN,
@@ -36,4 +38,4 @@ func _set_power(value: int) -> void:
 
 func _update_tile() -> void:
 	label.text = str(2**power)
-	rect.color = colors[power]
+	rect.color = COLORS[power]
