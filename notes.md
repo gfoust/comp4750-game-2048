@@ -25,12 +25,11 @@
 
 - Discuss abstraction, leading to iterator
   + Discuss Godot iterators
-  + Discuss iterating over `Vector2i`
-  + Make `get_tile` and `set_tile` to help
+  + Discuss our iterator interface
 - Make `Dir` enum
-- Make `Slice` iterator
+- Make `SliceItr` iterator
   + Make fields / `_init`
-  + Make iterator methods (wait on `_iter_copy`)
+  + Make iterator methods
 - Make `slide` method
   + Note: rearranging array has no visual effect
 - Revisit `move_tiles`

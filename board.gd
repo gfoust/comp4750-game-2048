@@ -9,6 +9,7 @@ enum Dir {
 	RIGHT
 }
 
+
 var listening := true
 var grid: Array[Array]
 var empty_tiles := GRID_SIZE * GRID_SIZE
@@ -84,71 +85,66 @@ func add_tile_to_grid() -> void:
 						n -= 1
 
 
-func get_tile(pos: Vector2i) -> Tile:
-	return grid[pos.y][pos.x]
-
-
-func set_tile(pos: Vector2i, tile: Tile) -> void:
-	grid[pos.y][pos.x] = tile
-
-
 func slide(dir: Dir) -> bool:
 	var changed := false
 	for i in range(GRID_SIZE):
-		var slice := Slice.new(dir, i)
-		var src := [0]
-		var dst := [0]
-		var good := slice._iter_init(src)
-		slice._iter_init(dst)
-		while good and get_tile(slice._iter_get(src[0])) != null:
-			good = slice._iter_next(src)
-			slice._iter_next(dst)
-		while good:
-			var src_pos: Vector2i = slice._iter_get(src[0])
-			var tile := get_tile(src_pos)
-			if tile != null:
-				var dst_pos: Vector2i = slice._iter_get(dst[0])
-				set_tile(dst_pos, tile)
-				set_tile(src_pos, null)
-				slice._iter_next(dst)
+		var src = SliceItr.new(grid, dir, i)
+		var dst = SliceItr.new(grid, dir, i)
+		while src.good() and src.get_tile() != null:
+			src.next()
+			dst.next()
+		while src.good():
+			if src.get_tile() != null:
+				dst.set_tile(src.get_tile())
+				dst.next()
+				src.set_tile(null)
 				changed = true
-			good = slice._iter_next(src)
+			src.next()
 	return changed
 
 
-class Slice:
-	var _begin: int
+class SliceItr:
+	var _grid: Array[Array]
+	var _start_dir: Dir
+	var _along: int
+	var _x_axis: bool
+	var _current: int
 	var _end: int
 	var _inc: int
-	var _x_axis: bool
-	var _other: int
 
 
-	func _init(start: Dir, along: int) -> void:
-		if start == Dir.LEFT or start == Dir.UP:
-			_begin = 0
+	func _init(grid: Array[Array], start_dir: Dir, along: int) -> void:
+		_start_dir = start_dir
+		_grid = grid
+		_along = along
+		_x_axis = start_dir == Dir.LEFT or start_dir == Dir.RIGHT
+		if start_dir == Dir.LEFT or start_dir == Dir.UP:
+			_current = 0
 			_end = GRID_SIZE
 			_inc = 1
 		else:
-			_begin = GRID_SIZE - 1
+			_current = GRID_SIZE - 1
 			_end = -1
 			_inc = -1
-		_x_axis = start == Dir.LEFT or start == Dir.RIGHT
-		_other = along
 
 
-	func _iter_init(iter: Array) -> bool:
-		iter[0] = _begin
-		return iter[0] != _end
+	func good() -> bool:
+		return _current != _end
 
 
-	func _iter_get(current: Variant) -> Variant:
+	func get_tile() -> Tile:
 		if _x_axis:
-			return Vector2(current as int, _other)
+			return _grid[_along][_current] as Tile
 		else:
-			return Vector2(_other, current as int)
+			return _grid[_current][_along] as Tile
 
 
-	func _iter_next(iter: Array) -> bool:
-		iter[0] = iter[0] + _inc
-		return iter[0] != _end
+	func set_tile(tile: Tile) -> void:
+		if _x_axis:
+			_grid[_along][_current] = tile
+		else:
+			_grid[_current][_along] = tile
+
+
+	func next() -> void:
+		_current += _inc
