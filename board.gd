@@ -90,14 +90,12 @@ func slide(dir: Dir) -> bool:
 	for i in range(GRID_SIZE):
 		var src = SliceItr.new(grid, dir, i)
 		var dst = SliceItr.new(grid, dir, i)
-		while src.good() and src.get_tile() != null:
-			src.next()
-			dst.next()
 		while src.good():
 			if src.get_tile() != null:
-				dst.set_tile(src.get_tile())
+				if not src.equals(dst):
+					dst.set_tile(src.get_tile())
+					src.set_tile(null)
 				dst.next()
-				src.set_tile(null)
 				changed = true
 			src.next()
 	return changed
@@ -148,3 +146,7 @@ class SliceItr:
 
 	func next() -> void:
 		_current += _inc
+
+
+	func equals(other: SliceItr) -> bool:
+		return _current == other._current
