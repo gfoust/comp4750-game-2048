@@ -111,6 +111,7 @@ func slide_one(src: SliceItr, dst: SliceItr) -> bool:
 			src.set_tile(grid, null)
 			dst.get_tile(grid).power += 1
 			dst.next()
+			empty_tiles += 1
 			return true
 		else:
 			dst.next()
