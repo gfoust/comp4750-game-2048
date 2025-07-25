@@ -1,41 +1,14 @@
-# Stage 2
+# Stage 3
 
-## Get rid of individual tile
-
-- Delete tile from board
-- In `_input` change if branches to `pass`
-- In `move_tiles` remove `tween_property`
-
-## Add tiles dynamically
-
-- Make `GRID_SIZE` and `TILE_SIZE`
-- Make `grid` variable
-- Set sizes in `_ready` (or `_init`?)
-- Make `add_tile_to_grid`
-  + Save `listening = true` for later
-  + Make `empty_tiles` variable
-  + Put in nth empty slot, where n is random
-  + Note: NOT `Tile.new()`; instead...
-- Make `make_tile`
-  + Make `tile_scene` variable
-  + Create / initialize tile
-- Add input for `ui_accept` to call `add_tile_to_grid`
-
-## Make tiles slide
-
-- Discuss abstraction, leading to iterator
-  + Discuss Godot iterators
-  + Discuss our iterator interface
-- Make `Dir` enum
-- Make `SliceItr` iterator
-  + Make fields / `_init`
-  + Make iterator methods
-- Make `slide` method
-  + Note: rearranging array has no visual effect
-- Revisit `move_tiles`
-  + Save `set_parallel`
-  + Save trans/ease
-- Debugging
-  - Move `listening = true` from `ready` to `add_tile_to_grid`
-  - Add `set_parallel`
-  - Add trans/ease
+## Create a "back grid"
+- Make `back_grid` variable, initialize in `_ready`
+- Move slide logic into `slide_one`; rename `slide` to `slide_all`
+  + Note `slide_one` must return bool to update `changed`
+- Change `SliceItr` so that grid is not built in
+  + Update `_init`, `get_tile`, and `set_tile`
+  + Update code using iters to pass `grid`
+- Update `slide_one` with logic for merging tiles
+- Update `move_tiles` to iterate over both grids
+- Update `on_tile_move_done` to delete merged
+- Update `Tile` to animate color changes
+  + Use `init` parameter to distinguish between initial value and change
