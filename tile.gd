@@ -25,17 +25,21 @@ const COLORS := [
 
 @onready var rect: ColorRect = $ColorRect
 @onready var label: Label = $ColorRect/Label
+var tween: Tween
 
 func _ready() -> void:
-	_update_tile()
+	_update_tile(false)
 
 
 func _set_power(value: int) -> void:
 	power = value
 	if is_node_ready():
-		_update_tile()
+		_update_tile(true)
 
 
-func _update_tile() -> void:
+func _update_tile(animate: bool) -> void:
 	label.text = str(2**power)
-	rect.color = COLORS[power]
+	if animate:
+		create_tween().tween_property(rect, "color", COLORS[power], 0.33333)
+	else:
+		rect.color = COLORS[power]
