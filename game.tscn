@@ -1,0 +1,74 @@
+[gd_scene load_steps=5 format=3 uid="uid://ds8vj1vcfdaqh"]
+
+[ext_resource type="PackedScene" uid="uid://bpam3mwutwhkp" path="res://board.tscn" id="1_80nbo"]
+[ext_resource type="LabelSettings" uid="uid://selt2yr00ucf" path="res://game_label.tres" id="1_e2o6t"]
+[ext_resource type="Script" uid="uid://c2gle26umm0ko" path="res://game.gd" id="1_feb5d"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_80nbo"]
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0.926806, 0.926806, 0.926806, 1)
+
+[node name="Game" type="Panel"]
+offset_left = 1.0
+offset_right = 497.0
+offset_bottom = 577.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_80nbo")
+script = ExtResource("1_feb5d")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 49.0
+grow_horizontal = 2
+text = "2048"
+label_settings = ExtResource("1_e2o6t")
+horizontal_alignment = 1
+
+[node name="Board" parent="." instance=ExtResource("1_80nbo")]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 88.0
+offset_right = 489.0
+offset_bottom = 569.0
+
+[node name="GameOverScreen" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="GameOverScreen"]
+offset_left = 8.0
+offset_top = 88.0
+offset_right = 489.0
+offset_bottom = 569.0
+
+[node name="Label" type="Label" parent="GameOverScreen/Panel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -44.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Game Over
+"
+label_settings = ExtResource("1_e2o6t")
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="GameOverScreen/Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+text = "Play Again"
+
+[connection signal="game_over" from="Board" to="." method="_on_board_game_over"]
+[connection signal="pressed" from="GameOverScreen/Panel/Button" to="." method="_on_button_pressed"]

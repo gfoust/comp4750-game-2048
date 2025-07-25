@@ -1,5 +1,7 @@
 extends ColorRect
 
+signal game_over(win: bool)
+
 const GRID_SIZE := 4
 
 enum Dir {
@@ -9,6 +11,7 @@ enum Dir {
 	RIGHT
 }
 
+@export var goal := 11
 
 var listening := true
 var grid: Array[Array]
@@ -46,9 +49,40 @@ func _on_tile_move_done() -> void:
 	for x in range(4):
 		for y in range(4):
 			if back_grid[x][y] != null:
-				remove_child(back_grid[x][y])
 				back_grid[x][y].queue_free()
 				back_grid[x][y] = null
+	if goal_reached():
+		game_over.emit(true)
+	else:
+		add_tile_to_grid()
+
+
+func goal_reached() -> bool:
+	for row: Array[Tile] in grid:
+		for tile: Tile in row:
+			if tile and tile.power == goal:
+				return true
+	return false
+
+
+func no_more_moves_possible() -> bool:
+	for i in range(4):
+		for j in range(3):
+			if grid[i][j].power == grid[i][j + 1].power:
+				return false
+			if grid[j][i].power == grid[j + 1][i].power:
+				return false
+	return true
+
+
+func reset() -> void:
+	for row in grid:
+		for y in range(4):
+			if row[y]:
+				row[y].queue_free()
+				row[y] = null
+	empty_tiles = GRID_SIZE * GRID_SIZE
+	listening = true
 	add_tile_to_grid()
 
 
@@ -84,7 +118,6 @@ func make_tile(x: int, y: int) -> Tile:
 
 
 func add_tile_to_grid() -> void:
-	listening = true
 	if empty_tiles > 0:
 		var n := randi() % empty_tiles
 		for x in range(4):
@@ -92,9 +125,11 @@ func add_tile_to_grid() -> void:
 				if grid[y][x] == null:
 					if n == 0:
 						grid[y][x] = make_tile(x, y)
-						return
-					else:
-						n -= 1
+					n -= 1
+	if empty_tiles == 0 and no_more_moves_possible():
+		game_over.emit(false)
+	else:
+		listening = true
 
 
 func slide_one(src: SliceItr, dst: SliceItr) -> bool:

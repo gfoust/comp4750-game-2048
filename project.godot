@@ -11,5 +11,12 @@ config_version=5
 [application]
 
 config/name="2048"
+run/main_scene="uid://ds8vj1vcfdaqh"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=496
+window/size/viewport_height=577
+window/stretch/mode="canvas_items"
