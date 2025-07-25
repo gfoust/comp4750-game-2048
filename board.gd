@@ -4,6 +4,20 @@ signal game_over(win: bool)
 
 const GRID_SIZE := 4
 
+const POWER_PROBABILITIES = [
+	[ 100,  0,  0,  0 ],
+	[ 100,  0,  0,  0 ],
+	[  95,  5,  0,  0 ],
+	[  90, 10,  0,  0 ],
+	[  88, 12,  0,  0 ],
+	[  85, 15,  0,  0 ],
+	[  83, 15,  2,  0 ],
+	[  82, 15,  3,  0 ],
+	[  81, 15,  3,  1 ],
+	[  80, 15,  3,  2 ],
+	[  80, 15,  3,  2 ],
+]
+
 enum Dir {
 	UP,
 	DOWN,
@@ -18,6 +32,7 @@ var grid: Array[Array]
 var back_grid: Array[Array]
 var empty_tiles := GRID_SIZE * GRID_SIZE
 var tile_scene: PackedScene = load("res://tile.tscn")
+var max_power := 1
 
 
 func _ready() -> void:
@@ -51,18 +66,10 @@ func _on_tile_move_done() -> void:
 			if back_grid[x][y] != null:
 				back_grid[x][y].queue_free()
 				back_grid[x][y] = null
-	if goal_reached():
+	if max_power == goal:
 		game_over.emit(true)
 	else:
 		add_tile_to_grid()
-
-
-func goal_reached() -> bool:
-	for row: Array[Tile] in grid:
-		for tile: Tile in row:
-			if tile and tile.power == goal:
-				return true
-	return false
 
 
 func no_more_moves_possible() -> bool:
@@ -106,10 +113,21 @@ func move_tiles():
 	tween.tween_callback(_on_tile_move_done)
 
 
+func pick_power():
+	var rand_num = randi() % 100
+	var total:= 0
+	var probs = POWER_PROBABILITIES[max_power - 1]
+	for i in range(probs.size()):
+		total += probs[i]
+		if rand_num < total:
+			return i + 1
+	return 0
+
+
 func make_tile(x: int, y: int) -> Tile:
 	empty_tiles -= 1
 	var tile = tile_scene.instantiate()
-	tile.power = 1
+	tile.power = pick_power()
 	tile.position.x = x * Tile.SIZE
 	tile.position.y = y * Tile.SIZE
 	tile.z_index = 100
@@ -144,9 +162,12 @@ func slide_one(src: SliceItr, dst: SliceItr) -> bool:
 			dst.set_tile(back_grid, src.get_tile(grid))
 			dst.get_tile(back_grid).z_index = 10
 			src.set_tile(grid, null)
-			dst.get_tile(grid).power += 1
+			var new_power = dst.get_tile(grid).power + 1
+			dst.get_tile(grid).power = new_power
 			dst.next()
 			empty_tiles += 1
+			if new_power > max_power:
+				max_power = new_power
 			return true
 		else:
 			dst.next()
